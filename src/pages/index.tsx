@@ -1,5 +1,7 @@
 import type { NextPage } from "next";
+import { useState } from "react";
 import Button from "../components/Button";
+import Form from "../components/Form";
 import Layout from "../components/Layout";
 import Table from "../components/Table";
 import Client from "../core/Client";
@@ -10,11 +12,17 @@ const Home: NextPage = () => {
     new Client("Mary", 23, "2"),
     new Client("Bob", 67, "3"),
   ];
+  const [visible, setVisible] = useState<"table" | "form">("table");
 
   function selectedClient(client: Client) {
     console.log(client);
   }
+
   function deletedClient(client: Client) {
+    console.log(client);
+  }
+
+  function saveClient(client: Client) {
     console.log(client);
   }
 
@@ -26,18 +34,34 @@ const Home: NextPage = () => {
       `}
     >
       <Layout title="Simple Registration Example">
-        <div
-          className={`
+        {visible === "table" ? (
+          <>
+            <div
+              className={`
           flex justify-end
         `}
-        >
-          <Button color="green" className="mb-4">Add new</Button>
-        </div>
-        <Table
-          clients={clientsArray}
-          selectedClient={selectedClient}
-          deletedClient={deletedClient}
-        />
+            >
+              <Button
+                onClick={() => setVisible("form")}
+                color="green"
+                className="mb-4"
+              >
+                Add new
+              </Button>
+            </div>
+            <Table
+              clients={clientsArray}
+              selectedClient={selectedClient}
+              deletedClient={deletedClient}
+            />
+          </>
+        ) : (
+            <Form
+              canceled={() => setVisible("table")}
+              client={clientsArray[1]}
+              clientChanged={saveClient}
+            />
+        )}
       </Layout>
     </div>
   );
