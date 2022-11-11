@@ -17,7 +17,11 @@ export default function Form(props: IFormProps) {
 
   return (
     <div>
-      {client_id ? <Input text="ID" value={client_id} readonly /> : false}
+      {client_id ? (
+        <Input text="ID" value={client_id} readonly className="mb-5" />
+      ) : (
+        false
+      )}
       <Input text="Name" value={name} valueChanged={setName} className="mb-5" />
       <Input
         text="Age"
