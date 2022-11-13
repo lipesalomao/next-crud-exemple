@@ -1,18 +1,9 @@
-import { collection } from "firebase/firestore/lite";
-import {
-  getFirestore,
-  doc,
-  deleteDoc,
-  setDoc,
-  getDocs,
-  updateDoc,
-} from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
+import { doc, deleteDoc, setDoc, getDocs, updateDoc } from "firebase/firestore";
 import { ClientRepo } from "./../../src/core/ClientRepo";
-import app from "../config";
+import { app, db } from "../config";
 import Client from "../../src/core/Client";
 import firestore from "firebase/firestore";
-
-const db = getFirestore(app);
 
 export default class ClientCollection implements ClientRepo {
   clientConverter = {
@@ -33,24 +24,24 @@ export default class ClientCollection implements ClientRepo {
 
   async save(client: Client): Promise<Client> {
     if (client.id) {
-      return new Promise((resolve, reject) => {
-        updateDoc(
-          doc(db, `clients/${client?.id}`).withConverter(this.clientConverter),
-          client
-        )
-          .then(() => resolve(client))
-          .catch((err) => reject(err));
-      });
+      await updateDoc(
+        doc(db, `clients/${client.id}`).withConverter(this.clientConverter),
+        {
+          name: client.name,
+          age: client.age,
+        }
+      );
+      return client;
     }
 
     return new Promise((resolve, reject) => {
-      setDoc(doc(db, "clients").withConverter(this.clientConverter), client, {
-        merge: true,
-      })
-        .then(() => resolve(client))
-        .catch((err) => reject(err));
+      addDoc(
+        collection(db, "clients").withConverter(this.clientConverter),
+        client
+      );
     });
   }
+  
   async delete(id: string): Promise<void> {
     return deleteDoc(
       doc(db, `clients/${id}`).withConverter(this.clientConverter)
@@ -58,16 +49,13 @@ export default class ClientCollection implements ClientRepo {
   }
 
   async getAll(): Promise<Client[]> {
-    return new Promise((resolve, reject) => {
-      getDocs(collection(db, "clients"))
-        .then((querySnapshot) => {
-          const clients: Client[] = [];
-          querySnapshot.forEach((doc) => {
-            clients.push(doc.data().withConverter(this.clientConverter));
-          });
-          resolve(clients);
-        })
-        .catch((err) => reject(err));
-    }) || [];
+    const clients = await getDocs(
+      collection(db, "clients").withConverter(this.clientConverter)
+    ).then((querySnapshot) => {
+      return querySnapshot.docs.map((doc) => {
+        return doc.data();
+      });
+    });
+    return clients;
   }
 }

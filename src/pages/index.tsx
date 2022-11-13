@@ -1,20 +1,30 @@
 import type { NextPage } from "next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import ClientCollection from "../../firebase/db/ClientCollection";
 import Button from "../components/Button";
 import Form from "../components/Form";
 import Layout from "../components/Layout";
 import Table from "../components/Table";
 import Client from "../core/Client";
+import { ClientRepo } from "../core/ClientRepo";
 
 const Home: NextPage = () => {
-  const clientsArray = [
-    new Client("Joe", 45, "1"),
-    new Client("Mary", 23, "2"),
-    new Client("Bob", 67, "3"),
-  ];
+  const repo: ClientRepo = new ClientCollection();
 
   const [client, setClient] = useState<Client>(Client.empty());
+  const [clients, setClients] = useState<Client[]>([]);
   const [visible, setVisible] = useState<"table" | "form">("table");
+
+  useEffect(() => {
+    getAllClients;
+  }, []);
+
+  function getAllClients() {
+    repo.getAll().then((clients) => {
+      setClients(clients);
+      setVisible("table");
+    });
+  }
 
   function selectedClient(client: Client) {
     setClient(client);
@@ -22,11 +32,16 @@ const Home: NextPage = () => {
   }
 
   function deletedClient(client: Client) {
-    console.log(client);
+    if (client.id) {
+      repo.delete(client?.id).then((client) => {
+        getAllClients();
+      });
+    }
   }
 
-  function saveClient(client: Client) {
-    setVisible("table");
+  async function saveClient(client: Client) {
+    getAllClients();
+    await repo.save(client);
   }
 
   function newClient() {
@@ -49,16 +64,12 @@ const Home: NextPage = () => {
           flex justify-end
         `}
             >
-              <Button
-                onClick={newClient}
-                color="green"
-                className="mb-4"
-              >
+              <Button onClick={newClient} color="green" className="mb-4">
                 Add new
               </Button>
             </div>
             <Table
-              clients={clientsArray}
+              clients={clients}
               selectedClient={selectedClient}
               deletedClient={deletedClient}
             />
