@@ -32,13 +32,13 @@ export default function Form(props: IFormProps) {
       />
       <div className="flex justify-end mt-3">
         <Button
-          color="blue"
+          color="red"
           className="mr-2"
           onClick={() =>
             props.clientChanged?.(new Client(name, +age, client_id))
           }
         >
-          {client_id ? "Edit" : "Save"}
+          {client_id ? "Update" : "Save"}
         </Button>
         <Button color="gray" onClick={props.canceled}>
           Cancel

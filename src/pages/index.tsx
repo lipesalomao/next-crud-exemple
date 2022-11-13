@@ -16,11 +16,12 @@ const Home: NextPage = () => {
   const [visible, setVisible] = useState<"table" | "form">("table");
 
   useEffect(() => {
-    getAllClients;
+    getAllClients();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function getAllClients() {
-    repo.getAll().then((clients) => {
+  async function getAllClients() {
+    await repo.getAll().then((clients) => {
       setClients(clients);
       setVisible("table");
     });
@@ -31,17 +32,17 @@ const Home: NextPage = () => {
     setVisible("form");
   }
 
-  function deletedClient(client: Client) {
+  async function deletedClient(client: Client) {
     if (client.id) {
-      repo.delete(client?.id).then((client) => {
-        getAllClients();
+      await repo.delete(client?.id).then(async (client) => {
+        await getAllClients();
       });
     }
   }
 
   async function saveClient(client: Client) {
-    getAllClients();
     await repo.save(client);
+    await getAllClients();
   }
 
   function newClient() {

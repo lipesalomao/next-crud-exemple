@@ -34,14 +34,13 @@ export default class ClientCollection implements ClientRepo {
       return client;
     }
 
-    return new Promise((resolve, reject) => {
-      addDoc(
-        collection(db, "clients").withConverter(this.clientConverter),
-        client
-      );
-    });
+    addDoc(
+      collection(db, "clients").withConverter(this.clientConverter),
+      client
+    );
+    return client;
   }
-  
+
   async delete(id: string): Promise<void> {
     return deleteDoc(
       doc(db, `clients/${id}`).withConverter(this.clientConverter)
@@ -49,13 +48,12 @@ export default class ClientCollection implements ClientRepo {
   }
 
   async getAll(): Promise<Client[]> {
-    const clients = await getDocs(
+    return await getDocs(
       collection(db, "clients").withConverter(this.clientConverter)
-    ).then((querySnapshot) => {
+    ).then((querySnapshot: firestore.QuerySnapshot<Client>) => {
       return querySnapshot.docs.map((doc) => {
         return doc.data();
       });
     });
-    return clients;
   }
 }
