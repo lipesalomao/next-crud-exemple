@@ -12,10 +12,13 @@ const Home: NextPage = () => {
     new Client("Mary", 23, "2"),
     new Client("Bob", 67, "3"),
   ];
+
+  const [client, setClient] = useState<Client>(Client.empty());
   const [visible, setVisible] = useState<"table" | "form">("table");
 
   function selectedClient(client: Client) {
-    console.log(client);
+    setClient(client);
+    setVisible("form");
   }
 
   function deletedClient(client: Client) {
@@ -23,7 +26,12 @@ const Home: NextPage = () => {
   }
 
   function saveClient(client: Client) {
-    console.log(client);
+    setVisible("table");
+  }
+
+  function newClient() {
+    setClient(Client.empty());
+    setVisible("form");
   }
 
   return (
@@ -42,7 +50,7 @@ const Home: NextPage = () => {
         `}
             >
               <Button
-                onClick={() => setVisible("form")}
+                onClick={newClient}
                 color="green"
                 className="mb-4"
               >
@@ -56,11 +64,11 @@ const Home: NextPage = () => {
             />
           </>
         ) : (
-            <Form
-              canceled={() => setVisible("table")}
-              client={clientsArray[1]}
-              clientChanged={saveClient}
-            />
+          <Form
+            client={client}
+            canceled={() => setVisible("table")}
+            clientChanged={saveClient}
+          />
         )}
       </Layout>
     </div>
